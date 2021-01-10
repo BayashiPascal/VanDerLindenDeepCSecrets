@@ -196,9 +196,115 @@ struct Token* ExtractTokens(char const* const decl) {
 
 }
 
+// Return true if a struct Token is a keyword
+bool IsKeyword(struct Token const* const token) {
+
+  // Declare the list of keywords
+  char const* keywords =
+    "unsigned "
+    "signed "
+    "const "
+    "volatile "
+    "static "
+    "extern "
+    "register "
+    "auto "
+    "void "
+    "char "
+    "short "
+    "int "
+    "long "
+    "float "
+    "double "
+    "struct "
+    "union ";
+
+  // If the keywords contain the token or the token starts with
+  // struct or union
+  if (
+    strstr(keywords, token->str) != NULL ||
+    strstr(token->str, "struct ") == token->str ||
+    strstr(token->str, "union ") == token->str) {
+
+    // Return true
+    return true;
+
+  }
+
+  return false;
+
+}
+
+// Return true if a list of struct Token contains a string
+bool ContainsString(
+  struct Token const* const tokens,
+  char* str) {
+
+  // Declare a pointer to loop on the tokens
+  struct Token const* token = tokens;
+
+  // Loop on the token
+  while (token != NULL) {
+
+    // If the token contains the string
+    if (strstr(token->str, str) != NULL) {
+
+      // Return true
+      return true;
+
+    }
+
+    // Move to the next token
+    token = token->at[right];
+
+  }
+
+  // If we reach here the list of tokens doesn't contains the string,
+  // return false
+  return false;
+
+}
+
+// Return true if a list of struct Token can be parsed by ParseTokens
+bool IsValidTokens(struct Token const* const tokens) {
+
+  // If the first token is not a keyword
+  if (IsKeyword(tokens) == false) {
+
+    // This is not a parsable declaration, return false
+    return false;
+
+  }
+
+  // If the list of token includes ',', '{' or '=' character
+  if (
+    ContainsString(tokens, ",") == true ||
+    ContainsString(tokens, "=") == true ||
+    ContainsString(tokens, "{") == true) {
+
+    // This is not a parsable declaration, return false
+    return false;
+
+  }
+
+  // If we reach here the list of tokens is parsable, return true
+  return true;
+
+}
+
 // Parse a list of struct Token and print the explanation in english
 // of the declaration it represents
 void ParseTokens(struct Token const* const tokens) {
+
+  // If the list of tokens is not a supported declaration
+  bool isValid = IsValidTokens(tokens);
+  if (isValid == false) {
+
+    // Print a message and stop here
+    printf("This declaration cannot be parse, sorry!\n");
+    return;
+
+  }
 
   // Declare a pointer to loop on the tokens
   struct Token const* token = tokens;
