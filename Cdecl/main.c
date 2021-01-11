@@ -4,7 +4,7 @@
 #include "string.h"
 
 // Define the list of end tokens
-char const* endTokens = " *()[];,=&";
+char const* endTokens = " *()[];,={}";
 
 // Enumeration for the index of the pointers to previous/next token
 enum TokenPosition {
@@ -70,6 +70,114 @@ bool IsCharEndOfToken(char const* const chr) {
 
 }
 
+// Search the end of a struct or union inline declaration
+char const* GetEndStructUnion(char const* ptrCharEnd) {
+
+  // Discard the spaces after the struct or union keyword
+  while (
+    *ptrCharEnd == ' ' &&
+    *ptrCharEnd != '\0') {
+
+    ++ptrCharEnd;
+
+  }
+
+  // Declare a variable to manage curly braces
+  int braceLevel = 0;
+
+  // If the char is an opening curly brace
+  if (*ptrCharEnd == '{') {
+
+    // Increment the curly brace level
+    ++braceLevel;
+
+  }
+
+  // Loop on the char of the declaration until the end of the
+  // struct or union
+  while (
+    *ptrCharEnd != '\0' &&
+    (braceLevel > 0 ||
+    IsCharEndOfToken(ptrCharEnd) == false)) {
+
+    // Move to the next character in the declaration
+    ++ptrCharEnd;
+
+    // If the char is an opening curly brace
+    if (*ptrCharEnd == '{') {
+
+      // Increment the curly brace level
+      ++braceLevel;
+
+    }
+
+    // If the char is a closing curly brace
+    if (*ptrCharEnd == '}') {
+
+      // Decrement the curly brace level
+      --braceLevel;
+
+      if (braceLevel == 0) {
+
+        ++ptrCharEnd;
+
+      }
+
+    }
+
+  }
+
+  return ptrCharEnd;
+
+}
+
+// Search the end of an assignment
+char const* GetEndAssign(char const* ptrCharEnd) {
+
+  // Declare a variable to manage curly braces
+  int braceLevel = 0;
+
+  // If the char is an opening curly brace
+  if (*ptrCharEnd == '{') {
+
+    // Increment the curly brace level
+    ++braceLevel;
+
+  }
+
+  // Loop on the char of the declaration until the end of the
+  // struct or union
+  while (
+    *ptrCharEnd != '\0' &&
+    (braceLevel > 0 ||
+    (*ptrCharEnd != ',' &&
+    *ptrCharEnd != ';'))) {
+
+    // If the char is an opening curly brace
+    if (*ptrCharEnd == '{') {
+
+      // Increment the curly brace level
+      ++braceLevel;
+
+    }
+
+    // Move to the next character in the declaration
+    ++ptrCharEnd;
+
+    // If the char is a closing curly brace
+    if (*ptrCharEnd == '}') {
+
+      // Decrement the curly brace level
+      --braceLevel;
+
+    }
+
+  }
+
+  return ptrCharEnd;
+
+}
+
 // Extract the token as a list of struct Token from the declaration string
 struct Token* ExtractTokens(char const* const decl) {
 
@@ -96,7 +204,11 @@ struct Token* ExtractTokens(char const* const decl) {
   while (*ptrChar != '\0') {
 
     // Discard the leading spaces 
-    while (*ptrChar == ' ') ++ptrChar;
+    while (*ptrChar == ' ') {
+
+      ++ptrChar;
+
+    }
 
     // Declare a second pointer to scan to the end of the current token
     char const* ptrCharEnd = ptrChar;
@@ -113,32 +225,39 @@ struct Token* ExtractTokens(char const* const decl) {
     }
 
     // If this token is a struct or union type
-    char* foundUnion =
+    char* ptrUnion =
       strstr(
         ptrChar,
         "union ");
-    char* foundStruct =
+    char* ptrStruct =
       strstr(
         ptrChar,
         "struct ");
     if (
-      foundUnion != NULL ||
-      foundStruct != NULL) {
+      ptrChar == ptrUnion ||
+      ptrChar == ptrStruct) {
 
-      // Discard the spaces after the struct or union keyword
-      while (
-        *ptrCharEnd == ' ' &&
-        *ptrCharEnd != '\0') {
+      // Get the end of the struct or union declaration
+      ptrCharEnd = GetEndStructUnion(ptrCharEnd);
 
-        ++ptrCharEnd;
+    }
 
-      }
+    // If this token is an assignment
+    if (*ptrChar == '=') {
 
-      // Loop on the char of the declaration until the end of the current
-      // token
+      // Get the end of the assignment
+      ptrCharEnd = GetEndAssign(ptrCharEnd);
+
+    }
+
+    // If this token is the beginning of a block
+    if (*ptrChar == '{') {
+
+      // Loop on the char of the declaration until the end of the
+      // block
       while (
         *ptrCharEnd != '\0' &&
-        IsCharEndOfToken(ptrCharEnd) == false) {
+        *ptrCharEnd != '}') {
 
         // Move to the next character in the declaration
         ++ptrCharEnd;
@@ -199,30 +318,8 @@ struct Token* ExtractTokens(char const* const decl) {
 // Return true if a struct Token is a keyword
 bool IsKeyword(struct Token const* const token) {
 
-  // Declare the list of keywords
-  char const* keywords =
-    "unsigned "
-    "signed "
-    "const "
-    "volatile "
-    "static "
-    "extern "
-    "register "
-    "auto "
-    "void "
-    "char "
-    "short "
-    "int "
-    "long "
-    "float "
-    "double "
-    "struct "
-    "union ";
-
-  // If the keywords contain the token or the token starts with
-  // struct or union
+  // If the token starts with struct or union
   if (
-    strstr(keywords, token->str) != NULL ||
     strstr(token->str, "struct ") == token->str ||
     strstr(token->str, "union ") == token->str) {
 
@@ -231,36 +328,48 @@ bool IsKeyword(struct Token const* const token) {
 
   }
 
-  return false;
+  // Declare the list of keywords
+  #define NB_KEYWORD 24
+  char const* keywords[NB_KEYWORD] = {
+    "unsigned",
+    "signed",
+    "const",
+    "volatile",
+    "static",
+    "extern",
+    "register",
+    "auto",
+    "void",
+    "char",
+    "short",
+    "int",
+    "long",
+    "float",
+    "double",
+    "(", ")",
+    "[", "]",
+    "*",
+    ";",
+    ",",
+    "struct",
+    "union"};
 
-}
+  // Loop on the keywords
+  for (
+    int iKeyword = 0;
+    iKeyword < NB_KEYWORD;
+    ++iKeyword) {
 
-// Return true if a list of struct Token contains a string
-bool ContainsString(
-  struct Token const* const tokens,
-  char* str) {
-
-  // Declare a pointer to loop on the tokens
-  struct Token const* token = tokens;
-
-  // Loop on the token
-  while (token != NULL) {
-
-    // If the token contains the string
-    if (strstr(token->str, str) != NULL) {
+    // If the token is a keyword
+    if (strcmp(keywords[iKeyword], token->str) == 0) {
 
       // Return true
       return true;
 
     }
 
-    // Move to the next token
-    token = token->at[right];
-
   }
 
-  // If we reach here the list of tokens doesn't contains the string,
-  // return false
   return false;
 
 }
@@ -276,25 +385,41 @@ bool IsValidTokens(struct Token const* const tokens) {
 
   }
 
-  // If the list of token includes ',', '{' or '=' character
-  if (
-    ContainsString(tokens, ",") == true ||
-    ContainsString(tokens, "=") == true ||
-    ContainsString(tokens, "{") == true) {
-
-    // This is not a parsable declaration, return false
-    return false;
-
-  }
-
   // If we reach here the list of tokens is parsable, return true
   return true;
 
 }
 
+// Search the next declarator in a list of tokens
+struct Token* GetNextDeclarator(struct Token* tokens) {
+
+  // Declare a pointer to loop on the tokens
+  struct Token* token = tokens;
+
+  // Loop until the next token which is not a keyword
+  while (
+    token != NULL &&
+    IsKeyword(token) == true) {
+
+    token = token->at[right];
+
+  }
+
+  // Return the declarator
+  return token;
+
+}
+
+// Parse a declarator
+void ParseDeclarator(struct Token* declarator) {
+
+  printf("%s\n", declarator->str);
+
+}
+
 // Parse a list of struct Token and print the explanation in english
 // of the declaration it represents
-void ParseTokens(struct Token const* const tokens) {
+void ParseTokens(struct Token* const tokens) {
 
   // If the list of tokens is not a supported declaration
   bool isValid = IsValidTokens(tokens);
@@ -307,22 +432,31 @@ void ParseTokens(struct Token const* const tokens) {
   }
 
   // Declare a pointer to loop on the tokens
-  struct Token const* token = tokens;
+  struct Token* token = tokens;
 
   // Loop on the tokens
   while (token != NULL) {
 
-    // Print the token
-    printf(
-      "%s|",
-      token->str);
+    // Go to the next declarator
+    struct Token* declarator = GetNextDeclarator(token);
 
-    // Move to the next token
-    token = token->at[right];
+    // If we have found a declarator
+    if (declarator != NULL) {
+
+      // Parse the declarator
+      ParseDeclarator(declarator);
+
+      // Move to the token following the declarator
+      token = declarator->at[right];
+
+    // Else, we haven't found a declarator, stop here
+    } else {
+
+      token = NULL;
+
+    }
 
   }
-
-  printf("\n");
 
 }
 
