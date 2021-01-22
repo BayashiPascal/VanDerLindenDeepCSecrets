@@ -4,7 +4,7 @@ main: Makefile main.o
 main.o: Makefile main.c
 	gcc -c -Wall -Wextra main.c
 
-test: test1 test2 test3 test4 test5
+test: test1 test2 test3 test4 test5 test6 test7
 	
 
 test1: main
@@ -21,4 +21,10 @@ test4: main
 
 test5: main
 	./main "char declaratorA, declaratorB;"
+
+test6: main
+	./main "char funA(int a, unsigned int b);"
+
+test7: main
+	./main "static const volatile arr[2][NB];"
 

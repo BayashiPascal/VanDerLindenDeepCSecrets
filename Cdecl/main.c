@@ -410,10 +410,176 @@ struct Token* GetNextDeclarator(struct Token* tokens) {
 
 }
 
-// Parse a declarator
-void ParseDeclarator(struct Token* declarator) {
+// Parse the size of an array
+// 'token' in argument is the opening square bracket of the size
+struct Token const* ParseArraySize(struct Token const* const token) {
 
-  printf("%s\n", declarator->str);
+  // Declare a variable to memorise the bracket level
+  int level = 1;
+
+  // Pointer to loop on the token
+  struct Token const* ptr = token->at[right];
+
+  // Separator
+  char sep[2] = {'\0', '\0'};
+
+  // Loop until the closing bracket
+  while (
+    ptr != NULL &&
+    level > 0) {
+
+    // Print the token
+    printf(
+      "%s%s",
+      sep,
+      ptr->str);
+
+    // Move to the next token
+    ptr = ptr->at[right];
+
+    // Update the separator
+    sep[0] = ' ';
+
+    // If it's an opening square bracket
+    if (ptr->str[0] == '[') {
+
+      // Increase the level
+      ++level;
+
+    // Else, if it's a closing square bracket
+    } else if (ptr->str[0] == ']') {
+
+      // Decrease the level
+      --level;
+
+    }
+
+  }
+
+  // Return the closing bracket
+  return ptr;
+
+}
+
+// Parse the arguments of a function
+// 'token' in argument is the opening parenthesis of the argument list
+void ParseFunctionArguments(struct Token const* const token) {
+
+  // Declare a variable to memorise the bracket level
+  int level = 1;
+
+  // Pointer to loop on the token
+  struct Token const* ptr = token->at[right];
+
+  // Separator
+  char sep[2] = {'\0', '\0'};
+
+  // Loop until the closing parenthesis
+  while (
+    ptr != NULL &&
+    level > 0) {
+
+    // Print the token
+    printf(
+      "%s%s",
+      sep,
+      ptr->str);
+
+    // Move to the next token
+    ptr = ptr->at[right];
+
+    // Update the separator
+    sep[0] = ' ';
+
+    // If it's an opening parenthesis
+    if (ptr->str[0] == '(') {
+
+      // Increase the level
+      ++level;
+
+    // Else, if it's a closing parenthesis
+    } else if (ptr->str[0] == ')') {
+
+      // Decrease the level
+      --level;
+
+    }
+
+  }
+
+}
+
+// Parse a declarator
+void ParseDeclarator(struct Token const* declarator) {
+
+  // Print the declarator name
+  printf(
+    "%s is ",
+    declarator->str);
+
+  // If there is a token at the right of the declarator
+  if (declarator->at[right] != NULL) {
+
+    // If the token to the right is an opening square bracket
+    if (declarator->at[right]->str[0] == '[') {
+
+      // Print the declarator is an array
+      printf("an array of [");
+
+      // Parse the array sizes
+      struct Token const* ptr = declarator->at[right];
+      while (
+        ptr != NULL &&
+        ptr->str[0] == '[') {
+
+        ptr = ParseArraySize(ptr);
+        if (ptr != NULL) {
+
+          ptr = ptr->at[right];
+          if (ptr->str[0] == '[') {
+
+            printf("] by [");
+
+          } else {
+
+            printf("]");
+
+          }
+
+        }
+
+      }
+
+      printf(" ");
+
+    }
+
+    // If the token to the right is an opening parenthesis
+    if (declarator->at[right]->str[0] == '(') {
+
+      // Print the declarator is a function
+      printf("a function taking as argument(s): (");
+
+      // Parse the function arguments
+      ParseFunctionArguments(declarator->at[right]);
+      printf(") ");
+
+    }
+
+  }
+
+  // If there is a token at the left of the declarator
+  if (declarator->at[left] != NULL) {
+
+    // If the token to the left is an opening parenthesis
+    if (declarator->at[left]->str[0] == '(') {
+
+
+    }
+  }
+
+  // Line return to end the declarator definition
+  printf("\n");
 
 }
 
