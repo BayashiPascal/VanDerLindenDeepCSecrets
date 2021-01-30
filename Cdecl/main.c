@@ -192,13 +192,13 @@ struct Token* ExtractTokens(char const* const decl) {
   }
 
   // Declare a variable to memorise the first token
-  struct Token* firstToken = NULL;
+  struct Token *firstToken = NULL;
 
   // Declare a variable to memorise the current last token
-  struct Token* lastToken = NULL;
+  struct Token *lastToken = NULL;
 
   // Declare a pointer to loop on the declaration
-  char const* ptrChar = decl;
+  char const *ptrChar = decl;
 
   // Loop on the char of the declaration
   while (*ptrChar != '\0') {
@@ -279,6 +279,9 @@ struct Token* ExtractTokens(char const* const decl) {
 
     // Get the length of the token
     size_t lenToken = ptrCharEnd - ptrChar;
+
+    // If the token is only one char long, ptrCharEnd == ptrChar an
+    // lengthToken == 0, correct that
     lenToken = (lenToken == 0 ? 1 : lenToken);
 
     // Allocate memory for the token in the struct Token
@@ -310,7 +313,7 @@ struct Token* ExtractTokens(char const* const decl) {
 
   }
 
-  // Return the first token
+  // Return the first token, i.e. the hed of the list of tokens
   return firstToken;
 
 }
@@ -371,22 +374,6 @@ bool IsKeyword(struct Token const* const token) {
   }
 
   return false;
-
-}
-
-// Return true if a list of struct Token can be parsed by ParseTokens
-bool IsValidTokens(struct Token const* const tokens) {
-
-  // If the first token is not a keyword
-  if (IsKeyword(tokens) == false) {
-
-    // This is not a parsable declaration, return false
-    return false;
-
-  }
-
-  // If we reach here the list of tokens is parsable, return true
-  return true;
 
 }
 
@@ -463,7 +450,10 @@ struct Token const* ParseArraySize(struct Token const* const token) {
 
 // Parse the arguments of a function
 // 'token' in argument is the opening parenthesis of the argument list
-void ParseFunctionArguments(struct Token const* const token) {
+struct Token const* ParseFunctionArguments(struct Token const* const token) {
+
+  // Print the declarator is a function
+  printf("a function taking as argument(s): (");
 
   // Declare a variable to memorise the bracket level
   int level = 1;
@@ -507,6 +497,50 @@ void ParseFunctionArguments(struct Token const* const token) {
 
   }
 
+  // Print the end of the argument list
+  printf(") returning ");
+
+  // Return the last token of the argument list
+  return ptr;
+
+}
+
+// Parse an array dimensions declaration of a declarator
+struct Token const* ParseArrayDimensions(struct Token const* declarator) {
+
+  // Print the declarator is an array
+  printf("an array of [");
+
+  // Parse the array sizes
+  struct Token const* ptr = declarator->at[right];
+  while (
+    ptr != NULL &&
+    ptr->str[0] == '[') {
+
+    ptr = ParseArraySize(ptr);
+    if (ptr != NULL) {
+
+      ptr = ptr->at[right];
+      if (ptr->str[0] == '[') {
+
+        printf("] by [");
+
+      } else {
+
+        printf("]");
+
+      }
+
+    }
+
+  }
+
+  // Print a space at the end of the dimensions declaration parsing
+  printf(" ");
+
+  // Return the pointer at the end of the array dimensions declaration
+  return ptr;
+
 }
 
 // Parse a declarator
@@ -517,65 +551,168 @@ void ParseDeclarator(struct Token const* declarator) {
     "%s is ",
     declarator->str);
 
-  // If there is a token at the right of the declarator
-  if (declarator->at[right] != NULL) {
+  // Declare two pointers to the next token to the left and right of
+  // the declarator to be processed
+  struct Token const* ptrNext[2];
+  ptrNext[left] = declarator->at[left];
+  ptrNext[right] = declarator->at[right];
 
-    // If the token to the right is an opening square bracket
-    if (declarator->at[right]->str[0] == '[') {
+  // Declare a variable to memorise the current processing direction
+  enum TokenPosition procDir = right;
 
-      // Print the declarator is an array
-      printf("an array of [");
+  // Loop until we have parsed all the toekn to the left and right
+  while (
+    ptrNext[left] != NULL ||
+    ptrNext[right] != NULL) {
 
-      // Parse the array sizes
-      struct Token const* ptr = declarator->at[right];
-      while (
-        ptr != NULL &&
-        ptr->str[0] == '[') {
+    // If there is a next token to process in the current processing
+    // direction
+    if (ptrNext[procDir] != NULL) {
 
-        ptr = ParseArraySize(ptr);
-        if (ptr != NULL) {
+      // If the token to the right is an opening square bracket
+      if (
+        procDir == right &&
+        ptrNext[right] != NULL &&
+        ptrNext[right]->str[0] == '[') {
 
-          ptr = ptr->at[right];
-          if (ptr->str[0] == '[') {
+        // Parse the array dimensions
+        struct Token const* ptrEndArrayDimensions =
+          ParseArrayDimensions(declarator);
 
-            printf("] by [");
+        // Move the next token to parse on the right of the declarator
+        ptrNext[right] = ptrEndArrayDimensions->at[right];
 
-          } else {
+      // Else, if the token to the right is an opening parenthesis
+      } else if (
+        procDir == right &&
+        ptrNext[right] != NULL &&
+        ptrNext[right]->str[0] == '(') {
 
-            printf("]");
+        // Parse the function arguments
+        struct Token const* ptrEndFunctionArguments =
+          ParseFunctionArguments(declarator->at[right]);
 
-          }
+        // Move the next token to parse on the right of the declarator
+        ptrNext[right] = ptrEndFunctionArguments->at[right];
+
+      // Else, if the token to the right is a closing parenthesis
+      } else if (
+        procDir == right &&
+        ptrNext[right] != NULL &&
+        ptrNext[right]->str[0] == ')') {
+
+        // Change the processing direction to the left
+        procDir = left;
+
+        // Move the next token to parse on the right of the declarator
+        ptrNext[right] = ptrNext[right]->at[right];
+
+      // Else, if the token to the right is ';'
+      } else if (
+        procDir == right &&
+        ptrNext[right] != NULL &&
+        ptrNext[right]->str[0] == ';') {
+
+        // Change the processing direction to the left
+        procDir = left;
+
+        // End the parsing to the right
+        ptrNext[right] = NULL;
+
+      // Else, if the token to the right is ','
+      } else if (
+        procDir == right &&
+        ptrNext[right] != NULL &&
+        ptrNext[right]->str[0] == ',') {
+
+        // Change the processing direction to the left
+        procDir = left;
+
+        // End the parsing to the right
+        ptrNext[right] = NULL;
+
+      // Else, if the token to the left is an opening parenthesis
+      } else if (
+        procDir == left &&
+        ptrNext[left] != NULL &&
+        ptrNext[left]->str[0] == '(') {
+
+        // Change the processing direction to the right
+        procDir = right;
+
+        // Move the next token to parse on the left of the declarator
+        ptrNext[left] = ptrNext[left]->at[left];
+
+      // Else, if the token to the left is 'const'
+      } else if (
+        procDir == left &&
+        ptrNext[left] != NULL &&
+        strcmp(ptrNext[left]->str, "const") == 0) {
+
+        // Print "read-only"
+        printf("read-only ");
+
+        // Move the next token to parse on the left of the declarator
+        ptrNext[left] = ptrNext[left]->at[left];
+
+      // Else, if the token to the left is '*'
+      } else if (
+        procDir == left &&
+        ptrNext[left] != NULL &&
+        strcmp(ptrNext[left]->str, "*") == 0) {
+
+        // Print "pointer to"
+        printf("pointer to ");
+
+        // Move the next token to parse on the left of the declarator
+        ptrNext[left] = ptrNext[left]->at[left];
+
+      // Else, for any other token to the left
+      } else if (
+        procDir == left &&
+        ptrNext[left] != NULL) {
+
+        // Print the token
+        printf(
+          "%s ",
+          ptrNext[left]->str);
+
+        // Move the next token to parse on the left of the declarator
+        ptrNext[left] = ptrNext[left]->at[left];
+
+      // Else, it's an unexpected sequence
+      } else {
+
+        // Print an error message and exit
+        printf("\nSorry, unexpected sequence encountered. Giving up\n");
+        if (ptrNext[left] != NULL) {
+
+          printf(
+            "Next token to process at left was %s\n",
+            ptrNext[left]->str);
 
         }
 
+        if (ptrNext[right] != NULL) {
+
+          printf(
+            "Next token to process at right was %s\n",
+            ptrNext[right]->str);
+
+        }
+
+        exit(1);
+
       }
 
-      printf(" ");
+    // Else, there is no next token to process in the current direction
+    } else {
+
+      // Switch the processing direction
+      procDir = (procDir == left ? right : left);
 
     }
 
-    // If the token to the right is an opening parenthesis
-    if (declarator->at[right]->str[0] == '(') {
-
-      // Print the declarator is a function
-      printf("a function taking as argument(s): (");
-
-      // Parse the function arguments
-      ParseFunctionArguments(declarator->at[right]);
-      printf(") ");
-
-    }
-
-  }
-
-  // If there is a token at the left of the declarator
-  if (declarator->at[left] != NULL) {
-
-    // If the token to the left is an opening parenthesis
-    if (declarator->at[left]->str[0] == '(') {
-
-
-    }
   }
 
   // Line return to end the declarator definition
@@ -586,16 +723,6 @@ void ParseDeclarator(struct Token const* declarator) {
 // Parse a list of struct Token and print the explanation in english
 // of the declaration it represents
 void ParseTokens(struct Token* const tokens) {
-
-  // If the list of tokens is not a supported declaration
-  bool isValid = IsValidTokens(tokens);
-  if (isValid == false) {
-
-    // Print a message and stop here
-    printf("This declaration cannot be parse, sorry!\n");
-    return;
-
-  }
 
   // Declare a pointer to loop on the tokens
   struct Token* token = tokens;
@@ -612,7 +739,8 @@ void ParseTokens(struct Token* const tokens) {
       // Parse the declarator
       ParseDeclarator(declarator);
 
-      // Move to the token following the declarator
+      // Move to the token following the declarator or the next call
+      // to GetNextDeclarator will return the same declarator
       token = declarator->at[right];
 
     // Else, we haven't found a declarator, stop here
