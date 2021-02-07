@@ -1,5 +1,5 @@
 main: Makefile main.o
-	gcc -o main main.o
+	gcc -O3 -o main main.o -lm 
 
 main.o: Makefile main.c
-	gcc -c -Wall -Wextra main.c
+	gcc -O3 -c -Wall -Wextra main.c

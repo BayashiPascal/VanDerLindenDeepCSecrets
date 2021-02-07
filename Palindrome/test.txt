@@ -1,0 +1,5 @@
+cat
+ham
+yak
+yam
+hat
