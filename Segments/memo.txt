@@ -1,0 +1,179 @@
+echo '\
+#include "stdio.h" \n\
+int main() { \n\
+  printf("hello world\\n"); \n\
+  return 0; \n\
+} \n\
+' > main.c; make main; ls -l main main.o; size main main.o; make main_debug; ls -l main main.o; size main main.o; make main_optim; ls -l main main.o; size main main.o
+make[1]: Entering directory '/home/bayashi/GitHub/VanDerLindenDeepCSecrets/Segments'
+gcc -c main.c
+gcc -o main main.o
+make[1]: Leaving directory '/home/bayashi/GitHub/VanDerLindenDeepCSecrets/Segments'
+-rwxrwxr-x 1 bayashi bayashi 7180  2月  8 21:52 main
+-rw-rw-r-- 1 bayashi bayashi 1056  2月  8 21:52 main.o
+   text	   data	    bss	    dec	    hex	filename
+   1120	    272	      4	   1396	    574	main
+    126	      0	      0	    126	     7e	main.o
+make[1]: Entering directory '/home/bayashi/GitHub/VanDerLindenDeepCSecrets/Segments'
+gcc -ggdb -c main.c
+gcc -ggdb -o main main.o
+make[1]: Leaving directory '/home/bayashi/GitHub/VanDerLindenDeepCSecrets/Segments'
+-rwxrwxr-x 1 bayashi bayashi 9480  2月  8 21:52 main
+-rw-rw-r-- 1 bayashi bayashi 4108  2月  8 21:52 main.o
+   text	   data	    bss	    dec	    hex	filename
+   1120	    272	      4	   1396	    574	main
+    126	      0	      0	    126	     7e	main.o
+make[1]: Entering directory '/home/bayashi/GitHub/VanDerLindenDeepCSecrets/Segments'
+gcc -O3 -c main.c
+gcc -O3 -o main main.o
+make[1]: Leaving directory '/home/bayashi/GitHub/VanDerLindenDeepCSecrets/Segments'
+-rwxrwxr-x 1 bayashi bayashi 7180  2月  8 21:52 main
+-rw-rw-r-- 1 bayashi bayashi 1128  2月  8 21:52 main.o
+   text	   data	    bss	    dec	    hex	filename
+   1104	    272	      4	   1380	    564	main
+    120	      0	      0	    120	     78	main.o
+echo '\
+#include "stdio.h" \n\
+int arr[1000]; \n\
+int main() { \n\
+  printf("hello world\\n"); \n\
+  return 0; \n\
+} \n\
+' > main.c; make main; ls -l main main.o; size main main.o; make main_debug; ls -l main main.o; size main main.o; make main_optim; ls -l main main.o; size main main.o
+make[1]: Entering directory '/home/bayashi/GitHub/VanDerLindenDeepCSecrets/Segments'
+gcc -c main.c
+gcc -o main main.o
+make[1]: Leaving directory '/home/bayashi/GitHub/VanDerLindenDeepCSecrets/Segments'
+-rwxrwxr-x 1 bayashi bayashi 7200  2月  8 21:52 main
+-rw-rw-r-- 1 bayashi bayashi 1076  2月  8 21:52 main.o
+   text	   data	    bss	    dec	    hex	filename
+   1120	    272	   4032	   5424	   1530	main
+    126	      0	      0	    126	     7e	main.o
+make[1]: Entering directory '/home/bayashi/GitHub/VanDerLindenDeepCSecrets/Segments'
+gcc -ggdb -c main.c
+gcc -ggdb -o main main.o
+make[1]: Leaving directory '/home/bayashi/GitHub/VanDerLindenDeepCSecrets/Segments'
+-rwxrwxr-x 1 bayashi bayashi 9560  2月  8 21:52 main
+-rw-rw-r-- 1 bayashi bayashi 4196  2月  8 21:52 main.o
+   text	   data	    bss	    dec	    hex	filename
+   1120	    272	   4032	   5424	   1530	main
+    126	      0	      0	    126	     7e	main.o
+make[1]: Entering directory '/home/bayashi/GitHub/VanDerLindenDeepCSecrets/Segments'
+gcc -O3 -c main.c
+gcc -O3 -o main main.o
+make[1]: Leaving directory '/home/bayashi/GitHub/VanDerLindenDeepCSecrets/Segments'
+-rwxrwxr-x 1 bayashi bayashi 7200  2月  8 21:52 main
+-rw-rw-r-- 1 bayashi bayashi 1148  2月  8 21:52 main.o
+   text	   data	    bss	    dec	    hex	filename
+   1104	    272	   4032	   5408	   1520	main
+    120	      0	      0	    120	     78	main.o
+echo '\
+#include "stdio.h" \n\
+int arr[1000]={1}; \n\
+int main() { \n\
+  printf("hello world\\n"); \n\
+  return 0; \n\
+} \n\
+' > main.c; make main; ls -l main main.o; size main main.o; make main_debug; ls -l main main.o; size main main.o; make main_optim; ls -l main main.o; size main main.o
+make[1]: Entering directory '/home/bayashi/GitHub/VanDerLindenDeepCSecrets/Segments'
+gcc -c main.c
+gcc -o main main.o
+make[1]: Leaving directory '/home/bayashi/GitHub/VanDerLindenDeepCSecrets/Segments'
+-rwxrwxr-x 1 bayashi bayashi 11236  2月  8 21:52 main
+-rw-rw-r-- 1 bayashi bayashi  5108  2月  8 21:52 main.o
+   text	   data	    bss	    dec	    hex	filename
+   1120	   4296	      4	   5420	   152c	main
+    126	   4000	      0	   4126	   101e	main.o
+make[1]: Entering directory '/home/bayashi/GitHub/VanDerLindenDeepCSecrets/Segments'
+gcc -ggdb -c main.c
+gcc -ggdb -o main main.o
+make[1]: Leaving directory '/home/bayashi/GitHub/VanDerLindenDeepCSecrets/Segments'
+-rwxrwxr-x 1 bayashi bayashi 13596  2月  8 21:52 main
+-rw-rw-r-- 1 bayashi bayashi  8228  2月  8 21:52 main.o
+   text	   data	    bss	    dec	    hex	filename
+   1120	   4296	      4	   5420	   152c	main
+    126	   4000	      0	   4126	   101e	main.o
+make[1]: Entering directory '/home/bayashi/GitHub/VanDerLindenDeepCSecrets/Segments'
+gcc -O3 -c main.c
+gcc -O3 -o main main.o
+make[1]: Leaving directory '/home/bayashi/GitHub/VanDerLindenDeepCSecrets/Segments'
+-rwxrwxr-x 1 bayashi bayashi 11236  2月  8 21:52 main
+-rw-rw-r-- 1 bayashi bayashi  5164  2月  8 21:52 main.o
+   text	   data	    bss	    dec	    hex	filename
+   1104	   4296	      4	   5404	   151c	main
+    120	   4000	      0	   4120	   1018	main.o
+echo '\
+#include "stdio.h" \n\
+void fun() { \n\
+  int arr[1000]; \n\
+} \n\
+int main() { \n\
+  printf("hello world\\n"); \n\
+  return 0; \n\
+} \n\
+' > main.c; make main; ls -l main main.o; size main main.o; make main_debug; ls -l main main.o; size main main.o; make main_optim; ls -l main main.o; size main main.o
+make[1]: Entering directory '/home/bayashi/GitHub/VanDerLindenDeepCSecrets/Segments'
+gcc -c main.c
+gcc -o main main.o
+make[1]: Leaving directory '/home/bayashi/GitHub/VanDerLindenDeepCSecrets/Segments'
+-rwxrwxr-x 1 bayashi bayashi 7248  2月  8 21:52 main
+-rw-rw-r-- 1 bayashi bayashi 1196  2月  8 21:52 main.o
+   text	   data	    bss	    dec	    hex	filename
+   1277	    276	      4	   1557	    615	main
+    198	      0	      0	    198	     c6	main.o
+make[1]: Entering directory '/home/bayashi/GitHub/VanDerLindenDeepCSecrets/Segments'
+gcc -ggdb -c main.c
+gcc -ggdb -o main main.o
+make[1]: Leaving directory '/home/bayashi/GitHub/VanDerLindenDeepCSecrets/Segments'
+-rwxrwxr-x 1 bayashi bayashi 9660  2月  8 21:52 main
+-rw-rw-r-- 1 bayashi bayashi 4368  2月  8 21:52 main.o
+   text	   data	    bss	    dec	    hex	filename
+   1277	    276	      4	   1557	    615	main
+    198	      0	      0	    198	     c6	main.o
+make[1]: Entering directory '/home/bayashi/GitHub/VanDerLindenDeepCSecrets/Segments'
+gcc -O3 -c main.c
+gcc -O3 -o main main.o
+make[1]: Leaving directory '/home/bayashi/GitHub/VanDerLindenDeepCSecrets/Segments'
+-rwxrwxr-x 1 bayashi bayashi 7200  2月  8 21:52 main
+-rw-rw-r-- 1 bayashi bayashi 1192  2月  8 21:52 main.o
+   text	   data	    bss	    dec	    hex	filename
+   1148	    272	      4	   1424	    590	main
+    142	      0	      0	    142	     8e	main.o
+echo '\
+#include "stdio.h" \n\
+void fun() { \n\
+  int arr[1000]={1}; \n\
+} \n\
+int main() { \n\
+  printf("hello world\\n"); \n\
+  return 0; \n\
+} \n\
+' > main.c; make main; ls -l main main.o; size main main.o; make main_debug; ls -l main main.o; size main main.o; make main_optim; ls -l main main.o; size main main.o
+make[1]: Entering directory '/home/bayashi/GitHub/VanDerLindenDeepCSecrets/Segments'
+gcc -c main.c
+gcc -o main main.o
+make[1]: Leaving directory '/home/bayashi/GitHub/VanDerLindenDeepCSecrets/Segments'
+-rwxrwxr-x 1 bayashi bayashi 7248  2月  8 21:52 main
+-rw-rw-r-- 1 bayashi bayashi 1240  2月  8 21:52 main.o
+   text	   data	    bss	    dec	    hex	filename
+   1329	    276	      4	   1609	    649	main
+    240	      0	      0	    240	     f0	main.o
+make[1]: Entering directory '/home/bayashi/GitHub/VanDerLindenDeepCSecrets/Segments'
+gcc -ggdb -c main.c
+gcc -ggdb -o main main.o
+make[1]: Leaving directory '/home/bayashi/GitHub/VanDerLindenDeepCSecrets/Segments'
+-rwxrwxr-x 1 bayashi bayashi 9660  2月  8 21:52 main
+-rw-rw-r-- 1 bayashi bayashi 4412  2月  8 21:52 main.o
+   text	   data	    bss	    dec	    hex	filename
+   1329	    276	      4	   1609	    649	main
+    240	      0	      0	    240	     f0	main.o
+make[1]: Entering directory '/home/bayashi/GitHub/VanDerLindenDeepCSecrets/Segments'
+gcc -O3 -c main.c
+gcc -O3 -o main main.o
+make[1]: Leaving directory '/home/bayashi/GitHub/VanDerLindenDeepCSecrets/Segments'
+-rwxrwxr-x 1 bayashi bayashi 7200  2月  8 21:52 main
+-rw-rw-r-- 1 bayashi bayashi 1192  2月  8 21:52 main.o
+   text	   data	    bss	    dec	    hex	filename
+   1148	    272	      4	   1424	    590	main
+    142	      0	      0	    142	     8e	main.o
+rm -f main.c main.o main
