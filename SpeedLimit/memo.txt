@@ -1,0 +1,14 @@
+Without gcc -O3
+08.545% funB: Read all data at once instead of one by one
+100.366% funC: Use a shortcut to access the property of the structure
+98.812% funD: for loop forward instead of backward
+101.462% funE: Scan elements of the array using a pointer instead of by index
+101.577% funF: Multiply by hardcoded value of 1/NB instead of dividing by NB
+99.337% funG: Use register for the index in the for loop
+With gcc -O3
+04.947% funB: Read all data at once instead of one by one
+98.881% funC: Use a shortcut to access the property of the structure
+98.555% funD: for loop forward instead of backward
+98.696% funE: Scan elements of the array using a pointer instead of by index
+98.488% funF: Multiply by hardcoded value of 1/NB instead of dividing by NB
+98.517% funG: Use register for the index in the for loop
