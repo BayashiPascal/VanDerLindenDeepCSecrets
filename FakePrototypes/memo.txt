@@ -1,0 +1,16 @@
+correct output is:
+char = a, short = 1, float = 2.0
+no prototype:
+char = a, short = 1, float = 0.000000
+correct prototype:
+char = a, short = 1, float = 2.000000
+wrong type in prototype in declaration:
+char = a, short = 0, float = 0.000000
+wrong type in prototype in definition:
+char = a, short = 0, float = 0.000000
+wrong order of arguments in prototype in declaration:
+char = a, short = 0, float = 0.000000
+wrong order of arguments in prototype in definition:
+char = a, short = 0, float = 0.000000
+set float, read double 0.000000
+set double, read float 0.000000
