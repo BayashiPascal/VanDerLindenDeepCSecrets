@@ -73,9 +73,18 @@ int main() {
 
   }*/
 
+  printf("tty %s\n",ttyname(fileno(stdin)));
+  int fdStdin = open(ttyname(STDIN_FILENO), O_ASYNC);
   signal(SIGIO, handle_signal);
-  fcntl(STDIN_FILENO, F_SETOWN, getpid());
-  fcntl(STDIN_FILENO, F_SETFL, O_ASYNC | fcntl(STDIN_FILENO, F_GETFL));
+  fcntl(fdStdin, F_SETOWN, getpid());
+  fcntl(fdStdin, F_SETFL, O_ASYNC | fcntl(STDIN_FILENO, F_GETFL));
+  errno = 0;
+  if (ioctl(fdStdin, I_SETSIG, S_RDNORM) < 0) {
+
+    printf("ioctl failed: %s\n", strerror(errno));
+    exit(EXIT_FAILURE);
+
+  }
 
   while (1) {
     ++val;
