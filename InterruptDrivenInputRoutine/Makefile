@@ -3,3 +3,4 @@ main: Makefile main.o
 
 main.o: Makefile main.c
 	gcc -c main.c
+
