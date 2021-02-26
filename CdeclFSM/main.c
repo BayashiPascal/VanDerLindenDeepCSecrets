@@ -667,6 +667,12 @@ struct Token* GetTokenBeforeComma(struct Token const* const token) {
 enum FSMStatus {
 
   FSMStatus_init,
+  FSMStatus_A,
+  FSMStatus_B,
+  FSMStatus_C,
+  FSMStatus_D,
+  FSMStatus_E,
+  FSMStatus_F,
   FSMStatus_terminate,
   FSMStatus_end,
   FSMStatus_nb
@@ -678,23 +684,137 @@ struct FSM {
 
   enum FSMStatus status;
   struct Token* tokens;
-  struct Token* input;
+  struct Token* identifier;
+  struct Token* nextToken[2];
   void (*actions[FSMStatus_nb])(struct FSM*);
 
 };
 
 void ActionInit(struct FSM* fsm) {
 
-  fsm->input = GetNextDeclarator(fsm->tokens);
+  fsm->identifier = GetNextDeclarator(fsm->tokens);
+  fsm->nextToken[right] = fsm->identifier->at[right];
+  fsm->nextToken[left] = fsm->identifier->at[left];
   printf(
     "%s is ",
-    fsm->input->str);
-  fsm->status = FSMStatus_terminate;
+    fsm->identifier->str);
+  fsm->status = FSMStatus_A;
+
+}
+
+void ActionA(struct FSM* fsm) {
+
+  if (fsm->nextToken[right] && fsm->nextToken[right]->str[0] == '[') {
+
+    printf("array of ");
+    fsm->nextToken[right] = ParseArraySize(fsm->nextToken[right]);
+    fsm->status = FSMStatus_C;
+
+  } else {
+
+    fsm->status = FSMStatus_B;
+
+  }
+
+}
+
+void ActionB(struct FSM* fsm) {
+
+  if (fsm->nextToken[right] && fsm->nextToken[right]->str[0] == '(') {
+
+    fsm->nextToken[right] = ParseFunctionArguments(fsm->nextToken[right]);
+    fsm->nextToken[right] = fsm->nextToken[right]->at[right];
+    fsm->status = FSMStatus_D;
+
+  } else {
+
+    fsm->status = FSMStatus_C;
+
+  }
+
+}
+
+void ActionC(struct FSM* fsm) {
+
+  fsm->status = FSMStatus_D;
+
+}
+
+void ActionD(struct FSM* fsm) {
+
+  fsm->status = FSMStatus_E;
+
+}
+
+void ActionE(struct FSM* fsm) {
+
+  fsm->status = FSMStatus_F;
+
+}
+
+void ActionF(struct FSM* fsm) {
+
+  if (fsm->nextToken[left] && fsm->nextToken[left]->str[0] == '(') {
+
+    while (fsm->nextToken[right] && fsm->nextToken[right]->str[0] != ')') {
+
+      fsm->nextToken[right] = fsm->nextToken[right]->at[right];
+
+    }
+    if (fsm->nextToken[right]) {
+
+      fsm->nextToken[right] = fsm->nextToken[right]->at[right];
+
+    }
+    fsm->nextToken[left] = fsm->nextToken[left]->at[left];
+    fsm->status = FSMStatus_A;
+
+  } else if (
+    fsm->nextToken[left] &&
+    strcmp(fsm->nextToken[left]->str, "const") == 0) {
+
+    printf(
+      "%s ",
+      fsm->nextToken[left]->str);
+    fsm->nextToken[left] = fsm->nextToken[left]->at[left];
+    fsm->status = FSMStatus_E;
+
+  } else if (
+    fsm->nextToken[left] &&
+    strcmp(fsm->nextToken[left]->str, "volatile") == 0) {
+
+    printf(
+      "%s ",
+      fsm->nextToken[left]->str);
+    fsm->nextToken[left] = fsm->nextToken[left]->at[left];
+    fsm->status = FSMStatus_E;
+
+  } else if (
+    fsm->nextToken[left] &&
+    fsm->nextToken[left]->str[0] == '*') {
+
+    printf("pointer to ");
+    fsm->nextToken[left] = fsm->nextToken[left]->at[left];
+    fsm->status = FSMStatus_E;
+
+  } else {
+
+    fsm->status = FSMStatus_terminate;
+
+  }
 
 }
 
 void ActionTerminate(struct FSM* fsm) {
 
+  do {
+
+    printf(
+      "%s ",
+      fsm->nextToken[left]->str);
+    fsm->nextToken[left] = fsm->nextToken[left]->at[left];
+
+  } while (fsm->nextToken[left]);
   printf("\n");
   fsm->status = FSMStatus_end;
 
@@ -705,6 +825,12 @@ void FSMInit(struct FSM* const fsm) {
 
   fsm->status = FSMStatus_init;
   fsm->actions[FSMStatus_init] = ActionInit;
+  fsm->actions[FSMStatus_A] = ActionA;
+  fsm->actions[FSMStatus_B] = ActionB;
+  fsm->actions[FSMStatus_C] = ActionC;
+  fsm->actions[FSMStatus_D] = ActionD;
+  fsm->actions[FSMStatus_E] = ActionE;
+  fsm->actions[FSMStatus_F] = ActionF;
   fsm->actions[FSMStatus_terminate] = ActionTerminate;
   fsm->actions[FSMStatus_end] = NULL;
 

@@ -8,5 +8,5 @@ test: test1
 	
 
 test1: main
-	./main "char* const *(*next)();"
+	./main "char* const *(*next)(void);"
 
