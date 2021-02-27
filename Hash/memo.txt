@@ -1,0 +1,15 @@
+f: 0x8b5f008 f->fname: A
+file_hash_table 0: 
+file_hash_table 1: (0x8b5f008, A), 
+f: 0x8b60030 f->fname: B
+file_hash_table 0: 
+file_hash_table 1: (0x8b60030, B), (0x8b5f008, A), 
+f: 0x8b60050 f->fname: AB
+file_hash_table 0: (0x8b60050, AB), 
+file_hash_table 1: (0x8b60030, B), (0x8b5f008, A), 
+f: 0x8b5f008 f->fname: A
+file_hash_table 0: (0x8b60050, AB), 
+file_hash_table 1: (0x8b60030, B), (0x8b5f008, A), 
+f: 0x8b60070 f->fname: C
+file_hash_table 0: (0x8b60050, AB), 
+file_hash_table 1: (0x8b60070, C), (0x8b60030, B), (0x8b5f008, A), 
