@@ -21,6 +21,15 @@ int main() {
   fun_a(ga);
   fun_b(ga);
   printf("&ga:%p  &(ga[0]):%p  &(ga[1]):%p  \n", &ga, &(ga[0]), &(ga[1]));
+
+  char apricot[2][3][5];
+  char (*r)[5] = apricot[0];
+  char* t = apricot[0][0];
+  printf("r:%p  t:%p  \n",r,t);
+  ++r;
+  ++t;
+  printf("r:%p  t:%p  \n",r,t);
+
   return 0;
 
 }
