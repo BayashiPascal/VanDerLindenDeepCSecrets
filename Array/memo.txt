@@ -1,0 +1,3 @@
+&ca:0xbfaefdd0  &(ca[0]):0x804a01c  &(ca[1]):0x804a01d  
+&pa:0xbfaefdd0  &(pa[0]):0x804a01d  &(pa[1]):0x804a01e ++pa:0x804a01d 
+&ga:0x804a01c  &(ga[0]):0x804a01c  &(ga[1]):0x804a01d  
